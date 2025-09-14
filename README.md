@@ -1,7 +1,9 @@
-<div dir="rtl"> 
-# 🎮 Guess the Number Game (بازی حدس عدد)
+<h1 dir="rtl"> 
+🎮 Guess the Number Game (بازی حدس عدد) 
+</h1>
+<h3 dir="rtl"> 
 🎮 A simple Guess the Number game built with HTML, CSS and Vanilla JS (فارسی)
-</div>
+</h1>
 
 یک بازی ساده و سرگرم‌کننده برای حدس عدد که با **HTML, CSS و Vanilla JavaScript** ساخته شده است.  
 این پروژه برای تمرین فرانت‌اند و همچنین دیپلوی روی **GitHub Pages** طراحی شده.
