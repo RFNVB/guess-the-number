@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بازی حدس عدد</title>
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --card: #111827ee; /* gray-900 */
+      --text: #e5e7eb; /* gray-200 */
+      --muted: #9ca3af; /* gray-400 */
+      --accent: #22d3ee; /* cyan-400 */
+      --accent-2: #8b5cf6; /* violet-500 */
+      --success: #22c55e; /* green-500 */
+      --error: #ef4444; /* red-500 */
+      --warn: #f59e0b; /* amber-500 */
+    }
+    * { box-sizing: border-box;font-family: Vazirmatn, Segoe UI, Roboto, sans-serif;}
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: radial-gradient(1200px 800px at 80% -10%, #1e293b, var(--bg)); color: var(--text);
+      display: grid; place-items: center;
+    }
+    .card {
+      width: min(680px, 92vw); background: linear-gradient(180deg, #0b1222 0%, #0b1222cc 100%);
+      border: 1px solid #1f2937; border-radius: 20px; padding: 24px; box-shadow: 0 20px 60px #0007, inset 0 1px 0 #ffffff10;
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      margin: 0 0 4px; font-size: 1.8rem; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sub { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 10px 0 16px; }
+    @media (min-width: 640px){ .row{ grid-template-columns: 1.2fr 1fr 1fr; } }
+    label { font-size: .9rem; color: var(--muted); margin-bottom: 6px; display: inline-block; }
+    select, input[type="number"], button {
+      width: 100%; border-radius: 12px; padding: 12px 14px; border: 1px solid #263243; background: #0b1222; color: var(--text);
+      outline: none; transition: border .15s, transform .04s ease;
+    }
+    select:focus, input[type="number"]:focus { border-color: var(--accent); }
+    button { cursor: pointer; font-weight: 600; letter-spacing: .3px; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #001018; }
+    .btn-ghost { background: transparent; border-color: #2b364a; color: var(--muted); }
+    button:active { transform: translateY(1px); }
+    .stack { display: grid; gap: 6px; }
+    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid #263243; color: var(--muted);
+      background: #0a1426; font-size: .85rem;
+    }
+    .stat { font-weight: 700; color: var(--text); }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, #253047, transparent); margin: 16px 0; }
+    .msg { border-radius: 14px; padding: 12px 14px; background: #0b1222; border: 1px solid #263243; min-height: 48px; }
+    .msg.ok { border-color: #1f9d58; box-shadow: 0 0 0 2px #1f9d5822 inset; }
+    .msg.bad { border-color: #b3261e; box-shadow: 0 0 0 2px #b3261e22 inset; }
+    .msg.warn { border-color: #f59e0b; box-shadow: 0 0 0 2px #f59e0b22 inset; }
+    .history { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #0a1426; border: 1px solid #263243; border-radius: 999px; padding: 6px 10px; font-size: .85rem; color: var(--muted); }
+    .range { color: var(--muted); font-size: .9rem; }
+    footer { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .linkish { color: var(--accent); text-decoration: none; border-bottom: 1px dotted #22d3ee66; }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>بازی حدس عدد</h1>
+    <div class="sub">یک عدد تصادفی انتخاب شده. سعی کن با کمترین تلاش حدسش بزنی! 
+      <span class="range" id="rangeText">(۱ تا ۱۰۰)</span>
+    </div>
+
+    <section class="row" aria-label="تنظیمات و ورودی">
+      <div class="stack">
+        <label for="difficulty">درجه سختی</label>
+        <select id="difficulty" aria-label="انتخاب درجه سختی">
+          <option value="easy">آسون (۱۰ تلاش)</option>
+          <option value="normal" selected>معمولی (۷ تلاش)</option>
+          <option value="hard">سخت (۵ تلاش)</option>
+          <option value="endless">بی‌نهایت تلاش</option>
+        </select>
+      </div>
+
+      <div class="stack">
+        <label for="max">بازهٔ اعداد (۱ تا ...)</label>
+        <input id="max" type="number" min="10" max="1000000" step="10" value="100" />
+      </div>
+
+      <div class="stack">
+        <label for="guess">حدس تو</label>
+        <div class="flex">
+          <input id="guess" type="number" inputmode="numeric" placeholder="مثلاً ۴۲" aria-label="ورود عدد" />
+          <button class="btn-primary" id="btnGuess">حدس بزن</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="stack" aria-live="polite" aria-atomic="true">
+      <div id="message" class="msg">بازی رو شروع کن: یک عدد بین ۱ و ۱۰۰ انتخاب شده.</div>
+      <div class="flex">
+        <span class="pill">تلاش‌های مانده: <span class="stat" id="attemptsLeft">—</span></span>
+        <span class="pill">تعداد حدس‌ها: <span class="stat" id="guessesCount">۰</span></span>
+        <span class="pill">بهترین رکورد: <span class="stat" id="bestScore">—</span></span>
+      </div>
+      <div class="history" id="history" aria-label="تاریخچه حدس‌ها"></div>
+    </section>
+
+    <footer>
+      <div class="flex">
+        <button class="btn-ghost" id="btnNew">شروع دوباره</button>
+        <button class="btn-ghost" id="btnGiveUp">تسلیم 😅</button>
+      </div>
+      <small style="color:var(--muted)">ساخته شده با HTML/CSS/JS </small>
+    </footer>
+  </main>
+
+  <script>
+    // --- State ---
+    const difficultyEl = document.getElementById('difficulty');
+    const maxEl = document.getElementById('max');
+    const guessEl = document.getElementById('guess');
+    const btnGuess = document.getElementById('btnGuess');
+    const btnNew = document.getElementById('btnNew');
+    const btnGiveUp = document.getElementById('btnGiveUp');
+
+    const messageEl = document.getElementById('message');
+    const attemptsLeftEl = document.getElementById('attemptsLeft');
+    const guessesCountEl = document.getElementById('guessesCount');
+    const bestScoreEl = document.getElementById('bestScore');
+    const historyEl = document.getElementById('history');
+    const rangeText = document.getElementById('rangeText');
+
+    const MAX_ATTEMPTS = { easy: 10, normal: 7, hard: 5, endless: Infinity };
+
+    let secret = 0;
+    let attempts = 0;
+    let remaining = 0;
+    let over = false;
+
+    function randInt(max){
+      return Math.floor(Math.random() * max) + 1; // 1..max
+    }
+
+    function storageKey(){
+      return `gtn_best_${difficultyEl.value}_${maxEl.value}`;
+    }
+
+    function loadBest(){
+      const v = localStorage.getItem(storageKey());
+      bestScoreEl.textContent = v ? v : '—';
+    }
+
+    function saveBest(count){
+      const key = storageKey();
+      const prev = localStorage.getItem(key);
+      if(!prev || count < Number(prev)){
+        localStorage.setItem(key, String(count));
+        loadBest();
+      }
+    }
+
+    function setMsg(text, type){
+      messageEl.textContent = text;
+      messageEl.classList.remove('ok','bad','warn');
+      if(type) messageEl.classList.add(type);
+    }
+
+    function pushHistory(n, hint){
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = `${n} → ${hint}`;
+      historyEl.prepend(span);
+    }
+
+    function resetHistory(){ historyEl.innerHTML = ''; }
+
+    function start(){
+      over = false;
+      attempts = 0;
+      const max = clampMax();
+      secret = randInt(max);
+      remaining = MAX_ATTEMPTS[difficultyEl.value];
+      attemptsLeftEl.textContent = Number.isFinite(remaining) ? remaining : '∞';
+      guessesCountEl.textContent = '۰';
+      setMsg(`بازی شروع شد! یک عدد بین ۱ و ${max} انتخاب شد.`, '');
+      rangeText.textContent = `(۱ تا ${max})`;
+      resetHistory();
+      loadBest();
+      guessEl.value = '';
+      guessEl.focus();
+    }
+
+    function clampMax(){
+      let v = parseInt(maxEl.value || '100', 10);
+      if(isNaN(v) || v < 10) v = 10; if(v > 1000000) v = 1000000;
+      maxEl.value = v;
+      return v;
+    }
+
+    function handleGuess(){
+      if(over) return;
+      const n = parseInt(guessEl.value, 10);
+      const max = clampMax();
+      if(isNaN(n) || n < 1 || n > max){
+        setMsg(`عدد باید بین ۱ و ${max} باشد.`, 'warn');
+        return;
+      }
+      attempts++;
+      guessesCountEl.textContent = attempts.toString();
+      if(Number.isFinite(remaining)){
+        remaining = Math.max(0, remaining - 1);
+        attemptsLeftEl.textContent = remaining.toString();
+      }
+
+      if(n === secret){
+        setMsg(`درست حدس زدی! 🎉 عدد ${secret} بود. در ${attempts} تلاش.`, 'ok');
+        pushHistory(n, 'درست ✅');
+        saveBest(attempts);
+        over = true;
+        confetti();
+        return;
+      }
+      const diff = Math.abs(n - secret);
+      const hot = diff <= Math.max(2, Math.round(clampMax() * 0.02));
+      let hint = n > secret ? 'کمتر' : 'بیشتر';
+      setMsg(hot ? `خیلی نزدیک شدی! ${n > secret ? 'عدد کوچک‌تره' : 'عدد بزرگ‌تره'}` : `نه! ${n > secret ? 'کوچیک‌تر برو' : 'بزرگ‌تر برو'}`, hot ? 'warn' : 'bad');
+      pushHistory(n, hint);
+
+      if(Number.isFinite(remaining) && remaining === 0){
+        over = true;
+        setMsg(`باختی! 😬 عدد ${secret} بود. دوباره تلاش کن.`, 'bad');
+      }
+      guessEl.select();
+    }
+
+    function giveUp(){
+      if(over) return;
+      over = true;
+      setMsg(`تسلیم شدی. عدد ${secret} بود. 😅`, 'warn');
+    }
+
+    function confetti(){
+      // lightweight confetti using emojis
+      const c = document.createElement('div');
+      c.style.position = 'fixed'; c.style.inset = '0'; c.style.pointerEvents = 'none';
+      const N = 80;
+      for(let i=0;i<N;i++){
+        const s = document.createElement('span');
+        s.textContent = ['🎉','✨','🎊','💫'][i%4];
+        s.style.position='absolute';
+        s.style.left = Math.random()*100+'%';
+        s.style.top='-10%';
+        s.style.fontSize = (16+Math.random()*22)+'px';
+        s.style.transform = `rotate(${Math.random()*360}deg)`;
+        s.style.transition = `transform 1200ms ease-in, top 1200ms ease-in`;
+        c.appendChild(s);
+        requestAnimationFrame(()=>{
+          s.style.top = '110%';
+          s.style.transform += ` translateY(120vh)`;
+        });
+      }
+      document.body.appendChild(c);
+      setTimeout(()=> c.remove(), 1300);
+    }
+
+    // --- Events ---
+    btnGuess.addEventListener('click', handleGuess);
+    guessEl.addEventListener('keydown', e=>{ if(e.key==='Enter') handleGuess(); });
+    btnNew.addEventListener('click', start);
+    btnGiveUp.addEventListener('click', giveUp);
+    difficultyEl.addEventListener('change', start);
+    maxEl.addEventListener('change', start);
+
+    // First start
+    start();
+  </script>
+</body>
+</html>
